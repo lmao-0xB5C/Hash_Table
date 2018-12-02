@@ -4,11 +4,12 @@
 #include <list>
 #include <algorithm>
 #include <optional>
+#include <memory>
 
 template<class KEY, class ITEM>
 #define RETURN_TYPE std::optional<std::reference_wrapper<ITEM>>
 #define RWRAPPER(x) std::reference_wrapper(x)
-#define TABLE_TEMPLATE std::list<std::pair<KEY, ITEM*>>
+#define TABLE_TEMPLATE std::list<std::pair<KEY, std::shared_ptr<ITEM>>>
 
 class HashTable {
 private:
@@ -17,8 +18,7 @@ private:
 
 public:
 	HashTable(int size);
-	~HashTable();
-
+	
 public:
 	bool insert(KEY key, const ITEM& item);
 	bool remove(KEY key);
@@ -39,17 +39,17 @@ public:
 private:
 	auto has_item(KEY key, int index) {
 		return std::find_if(table[index].begin(), table[index].end(),
-			[&key](std::pair<KEY, ITEM*> item) {
+			[&key](std::pair<KEY, std::shared_ptr<ITEM>> item) {
 			return (item.first == key);
 		});
 	}
 
 	bool is_prime(int n);
-	int next_prime(int n);	//issue
+	int next_prime(int n);
 
-	int hash(KEY key) { 
+	int hash(KEY key) {
 		int val = 3217 * key + 4423;
-		return (((val ^ ((val << 3) & (val >> 5))) % 1257787) % table.size()); 
+		return (((val ^ ((val << 3) & (val >> 5))) % 1257787) % table.size());
 	}
 };
 
@@ -81,7 +81,10 @@ template<typename KEY, typename ITEM>
 bool HashTable<KEY, ITEM>::insert(KEY key, const ITEM& item) {
 	int index = hash(key);
 
-	table[index].push_back(std::make_pair(key, new ITEM(item)));
+	if (has_item(key, index) != table[index].end())
+		return false;
+
+	table[index].push_back(std::make_pair(key, std::make_shared<ITEM>(item)));
 	current_size++;
 	return true;
 }
@@ -97,7 +100,6 @@ bool HashTable<KEY, ITEM>::remove(KEY key) {
 	if (iter == table[index].end())
 		return false;
 
-	delete (*iter).second;
 	table[index].erase(iter);
 	current_size--;
 	return true;
@@ -111,14 +113,5 @@ void HashTable<KEY, ITEM>::print() {
 			std::cout << "H" << k << "->" << *((*j).second) << "\n\n";
 		}
 		k++;
-	}
-}
-
-template<typename KEY, typename ITEM>
-HashTable<KEY, ITEM>::~HashTable() {
-	for (int i = 0; i < table.size(); i++) {
-		for (auto it = table[i].begin(); it != table[i].end(); ++it) {
-			delete (*it).second;
-		}
 	}
 }

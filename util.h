@@ -72,6 +72,12 @@ void access_file(HashTable<int, File>& table) {
 	int fid;
 	std::cin >> fid;
 
+	auto val = table[fid];
+	if (!val) {
+		std::cout << "File doesn't exist!\n";
+		return;
+	}
+
 	std::cout << "\nInput User ID: ";
 	int uid;
 	std::cin >> uid;
@@ -80,20 +86,24 @@ void access_file(HashTable<int, File>& table) {
 	char op;
 	std::cin >> op;
 
-	std::cout << "\n1) Input Priority number: "
-		<< "\n2) Auto Priority: ";
+	std::cout << "\n1) Input Priority number"
+			  << "\n2) Auto Priority"
+			  << "\n\nInput Option: ";
 
 	int opt;
 	std::cin >> opt;
 	if (opt == 1) {
 		int p;
+		std::cout << "Input a number: ";
 		std::cin >> p;
-		table[fid].value().get().access_file(uid, p, op);
+		val.value().get().access_file(uid, p, op);
 	}
 	else if (opt == 2) {
 		std::string str;
+		std::cout << "Input either high or low: ";
 		std::cin.ignore();
 		std::getline(std::cin, str);
-		table[fid].value().get().access_file(uid, str, op);
+		val.value().get().access_file(uid, str, op);
 	}
+	std::cout << "Access granted as per the rules!\n";
 }

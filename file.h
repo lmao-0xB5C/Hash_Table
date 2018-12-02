@@ -1,15 +1,19 @@
 #pragma once
 
 #include <string>
+#include <memory>
 
 #include "priority_queue.h"
 #include "user.h"
 
+#define VECTOR	std::shared_ptr<std::vector<std::pair<int, char>>>
+#define QUEUE	std::shared_ptr<PriorityQueue<User>>
+
 class File {
 private:
 	int _ID;
-	PriorityQueue<User> waiting_list;
-	std::vector<std::pair<int, char>> current_users;
+	QUEUE waiting_list;
+	VECTOR current_users;
 
 public:
 	File(int id);
@@ -23,24 +27,24 @@ public:
 
 	inline bool operator==(int id) { return (_ID == id); }
 
-	bool isFree() { return (current_users.size() == 0 && waiting_list.size() == 0); }
+	bool isFree() { return (current_users->size() == 0 && waiting_list->size() == 0); }
 
 	friend std::ostream& operator<<(std::ostream& stream, File& file) {
 		std::cout << "File " << file._ID;
 
-		if (file.current_users.size() != 0)
+		if (file.current_users->size() != 0)
 			std::cout << "...Access Granted to User ";
 
-		for (auto i = file.current_users.begin(); file.current_users.size() != 0 && i != file.current_users.end(); ++i)
+		for (auto i = file.current_users->begin(); file.current_users->size() != 0 && i != file.current_users->end(); ++i)
 			stream << (*i).first << ", ";
 
-		if (file.current_users.size() != 0 && file.current_users[0].second == 'W')
+		if (file.current_users->size() != 0 && file.current_users->at(0).second == 'W')
 			stream << "write";
-		else if (file.current_users.size() != 0)
+		else if (file.current_users->size() != 0)
 			stream << "read";
 
-		if (file.waiting_list.size() != 0) {
-			auto u = file.waiting_list.get_max();
+		if (file.waiting_list->size() != 0) {
+			auto u = file.waiting_list->get_max();
 			if (u) {
 				stream << "\n\t" << "Next User " << u.value().get().getId() << ", ";
 				if (u.value().get().getOperation() == 'W')
@@ -48,11 +52,11 @@ public:
 				else
 					stream << "read";
 
-				stream << " Waiting ";
-				if (file.waiting_list.size() == 1)
+				stream << "\n\tWaiting ";
+				if (file.waiting_list->size() == 1)
 					stream << "1 user";
 				else
-					stream << file.waiting_list.size() << " users";
+					stream << file.waiting_list->size() << " users";
 			}
 		}
 		return stream;
