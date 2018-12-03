@@ -35,9 +35,10 @@ void load_file(HashTable<int, File>& table) {
 	std::getline(std::cin, file);
 
 	if (file.find(".txt") == std::string::npos)
-		file += std::string(".txt");
+		file += std::string(".txt");	//.txt of not present
 
 	std::ifstream in(file);
+	//if file doesn't open
 	if (in.fail()) {
 		std::cout << "Failed to load file\n";
 		return;
@@ -46,17 +47,18 @@ void load_file(HashTable<int, File>& table) {
 	std::string input, token;
 	std::vector<std::string> vec;
 
-	std::getline(in, input);
+	std::getline(in, input);	//to skip top line
 	while (std::getline(in, input)) {
 		if (input != "" && input != ",") {
 
 			std::istringstream ss(input);
 			while (std::getline(ss, token, ','))
-				vec.push_back(token);
+				vec.push_back(token);	//parsing
 
 			int j = atoi(vec[0].c_str());
-			table.insert(j, File(j));
+			table.insert(j, File(j));	//creates file
 
+			//to handle multiple users for a single file
 			for (int i = 0; i < vec.size() - 1; i += 3)
 				table[j].value().get().access_file(atoi(vec[i + 1].c_str()), atoi(vec[i + 2].c_str()), vec[i + 3][0]);
 

@@ -1,7 +1,5 @@
 #include "util.h"
 
-#include <vld.h>
-
 int main() {
 
 	HashTable<int, File> table(1000);
